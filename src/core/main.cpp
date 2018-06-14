@@ -55,6 +55,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef LMMS_HAVE_QADT
+#include <qadt.h>
+#endif
+
 #include <signal.h>
 
 #include "MainApplication.h"
@@ -712,6 +716,13 @@ int main( int argc, char * * argv )
 
 	bool destroyEngine = false;
 
+#ifdef LMMS_HAVE_QADT
+	qadt::Application qadtApp;
+
+	// Add and use return of priority requests above
+	A_REGISTER_THREAD("Main Thread", adt::ThreadPriority::NORMAL);
+#endif
+
 	// if we have an output file for rendering, just render the song
 	// without starting the GUI
 	if( !renderOut.isEmpty() )
@@ -767,6 +778,10 @@ int main( int argc, char * * argv )
 	else // otherwise, start the GUI
 	{
 		new GuiApplication();
+
+#ifdef LMMS_HAVE_QADT
+		qadt::Application::developerWindow()->show();
+#endif
 
 		// re-intialize RNG - shared libraries might have srand() or
 		// srandom() calls in their init procedure

@@ -52,6 +52,7 @@ OPTION(WANT_CALF	"Include CALF LADSPA plugins" ON)
 OPTION(WANT_CAPS	"Include C* Audio Plugin Suite (LADSPA plugins)" ON)
 OPTION(WANT_CARLA	"Include Carla plugin" ON)
 OPTION(WANT_CMT		"Include Computer Music Toolkit LADSPA plugins" ON)
+OPTION(WANT_DEVTOOLS	"Include Developer Tools support" ON)
 OPTION(WANT_JACK	"Include JACK (Jack Audio Connection Kit) support" ON)
 OPTION(WANT_WEAKJACK	"Loosely link JACK libraries" ON)
 OPTION(WANT_MP3LAME	"Include MP3/Lame support" ON)
@@ -209,6 +210,17 @@ ELSE(WANT_TAP)
 	SET(STATUS_TAP "not built as requested")
 ENDIF(WANT_TAP)
 
+IF(WANT_DEVTOOLS)
+	PKG_CHECK_MODULES(QADT qadt-0)
+	IF(QADT_FOUND)
+		SET(LMMS_HAVE_QADT TRUE)
+		SET(STATUS_QADT "OK")
+	ELSE(QADT_FOUND)
+		SET(STATUS_QADT "not found, please install the latest qadt")
+	ENDIF(QADT_FOUND)
+ELSE(WANT_DEVTOOLS)
+	SET(STATUS_QADT "not built as requested")
+ENDIF(WANT_DEVTOOLS)
 
 # check for CARLA
 IF(WANT_CARLA)
@@ -688,6 +700,7 @@ MESSAGE(
 "Developer options\n"
 "-----------------------------------------\n"
 "* Debug FP exceptions         : ${STATUS_DEBUG_FPE}\n"
+"* Developer Tools             : ${STATUS_QADT}\n"
 )
 
 MESSAGE(
