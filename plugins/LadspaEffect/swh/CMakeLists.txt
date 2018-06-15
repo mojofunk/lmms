@@ -8,13 +8,6 @@ ELSE()
 	SET(PIC_FLAGS "-fPIC -DPIC")
 ENDIF()
 
-# Additional link flags
-IF(LMMS_BUILD_WIN32 AND MINGW_PREFIX)
-	SET(LINK_FLAGS "${LINK_FLAGS} -shared -Wl,-no-undefined -Wl,-Bsymbolic -lm")
-ELSEIF(LMMS_BUILD_APPLE)
-	SET(LINK_FLAGS "${LINK_FLAGS} -Bsymbolic -lm")
-ENDIF()
-
 # Additional compile flags
 SET(COMPILE_FLAGS "${COMPILE_FLAGS} -O3 -Wall")
 SET(COMPILE_FLAGS "${COMPILE_FLAGS} -fomit-frame-pointer -funroll-loops -ffast-math -c -fno-strict-aliasing")
@@ -39,6 +32,8 @@ FOREACH(_item ${XML_SOURCES})
 
 	# Add a library target for this C file, which depends on success of makestup.pl
 	ADD_LIBRARY("${_plugin}" MODULE "${_out_file}")
+
+	TARGET_LINK_LIBRARIES("${_plugin}" m)
 
 	# Vocoder does not use fftw
 	IF(NOT ("${_plugin}" STREQUAL "vocoder_1337"))
