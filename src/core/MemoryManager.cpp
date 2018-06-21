@@ -28,6 +28,12 @@
 #include <QtCore/QtGlobal>
 #include "rpmalloc.h"
 
+#include "dev_tools.h"
+
+namespace LOG {
+	A_DEFINE_LOG_CATEGORY(MemoryManager, "MemoryManager");
+}
+
 /// Global static object handling rpmalloc intializing and finalizing
 struct MemoryManagerGlobalGuard {
 	MemoryManagerGlobalGuard() {
@@ -61,6 +67,18 @@ static thread_local MemoryManager::ThreadGuard local_mm_thread_guard{};
 
 void* MemoryManager::alloc(size_t size)
 {
+#ifdef LMMS_HAVE_QADT
+  adt::AllocationLogger logger(LOG::MemoryManager, __LINE__, __FILE__,
+                               A_STRFUNC);
+
+  if (logger.get_enabled()) {
+		logger.log_record->move_to_property_1("Bytes Allocated", size);
+    if (LOG::MemoryManager->trace_enabled) {
+      logger.set_stack_trace(new adt::StackTrace());
+    }
+  }
+#endif
+
 	// Reference local thread guard to ensure it is initialized.
 	// Compilers may optimize the instance away otherwise.
 	Q_UNUSED(&local_mm_thread_guard);
@@ -71,6 +89,15 @@ void* MemoryManager::alloc(size_t size)
 
 void MemoryManager::free(void * ptr)
 {
+#ifdef LMMS_HAVE_QADT
+  adt::AllocationLogger logger(LOG::MemoryManager, __LINE__, __FILE__,
+                               A_STRFUNC);
+
+  if (logger.get_enabled() && LOG::MemoryManager->trace_enabled) {
+    logger.set_stack_trace(new adt::StackTrace());
+  }
+#endif
+
 	Q_UNUSED(&local_mm_thread_guard);
 	Q_ASSERT_X(rpmalloc_is_thread_initialized(), "MemoryManager::free", "Thread not initialized");
 	return rpfree(ptr);
