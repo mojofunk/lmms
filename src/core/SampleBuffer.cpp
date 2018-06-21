@@ -59,6 +59,8 @@
 #include "FileDialog.h"
 
 
+A_DEFINE_CLASS_MEMBERS(SampleBuffer);
+
 
 SampleBuffer::SampleBuffer() :
 	m_audioFile( "" ),
@@ -146,6 +148,8 @@ void SampleBuffer::sampleRateChanged()
 
 void SampleBuffer::update( bool _keep_settings )
 {
+	A_CLASS_CALL1(_keep_settings);
+
 	const bool lock = ( m_data != NULL );
 	if( lock )
 	{
@@ -296,6 +300,8 @@ void SampleBuffer::update( bool _keep_settings )
 
 void SampleBuffer::convertIntToFloat ( int_sample_t * & _ibuf, f_cnt_t _frames, int _channels)
 {
+	A_CLASS_CALL2(_frames, _channels);
+
 	// following code transforms int-samples into
 	// float-samples and does amplifying & reversing
 	const float fac = 1 / OUTPUT_SAMPLE_MULTIPLIER;
@@ -333,6 +339,7 @@ void SampleBuffer::convertIntToFloat ( int_sample_t * & _ibuf, f_cnt_t _frames, 
 void SampleBuffer::directFloatWrite ( sample_t * & _fbuf, f_cnt_t _frames, int _channels)
 
 {
+	A_CLASS_CALL2(_frames, _channels);
 
 	m_data = MM_ALLOC( sampleFrame, _frames );
 	const int ch = ( _channels > 1 ) ? 1 : 0;
@@ -398,6 +405,8 @@ f_cnt_t SampleBuffer::decodeSampleSF( const char * _f,
 					ch_cnt_t & _channels,
 					sample_rate_t & _samplerate )
 {
+	A_CLASS_CALL2(_f, _channels);
+
 	SNDFILE * snd_file;
 	SF_INFO sf_info;
 	sf_info.format = 0;
@@ -500,6 +509,8 @@ f_cnt_t SampleBuffer::decodeSampleOGGVorbis( const char * _f,
 						ch_cnt_t & _channels,
 						sample_rate_t & _samplerate )
 {
+	A_CLASS_CALL1(_f);
+
 	static ov_callbacks callbacks =
 	{
 		qfileReadCallback,
@@ -616,6 +627,8 @@ bool SampleBuffer::play( sampleFrame * _ab, handleState * _state,
 					const float _freq,
 					const LoopMode _loopmode )
 {
+	A_CLASS_CALL3(_frames, _freq, _loopmode);
+
 	f_cnt_t startFrame = m_startFrame;
 	f_cnt_t endFrame = m_endFrame;
 	f_cnt_t loopStartFrame = m_loopStartFrame;
@@ -785,6 +798,8 @@ sampleFrame * SampleBuffer::getSampleFragment( f_cnt_t _index,
 		f_cnt_t _frames, LoopMode _loopmode, sampleFrame * * _tmp, bool * _backwards,
 		f_cnt_t _loopstart, f_cnt_t _loopend, f_cnt_t _end ) const
 {
+	A_CLASS_CALL6(_index, _frames, _loopmode, _loopstart, _loopend, _end);
+
 	if( _loopmode == LoopOff )
 	{
 		if( _index + _frames <= _end )
@@ -917,6 +932,8 @@ f_cnt_t SampleBuffer::getPingPongIndex( f_cnt_t _index, f_cnt_t _startf, f_cnt_t
 void SampleBuffer::visualize( QPainter & _p, const QRect & _dr,
 							const QRect & _clip, f_cnt_t _from_frame, f_cnt_t _to_frame )
 {
+	A_CLASS_CALL2(_from_frame, _to_frame);
+
 	if( m_frames == 0 ) return;
 
 	const bool focus_on_range = _to_frame <= m_frames
@@ -956,6 +973,8 @@ void SampleBuffer::visualize( QPainter & _p, const QRect & _dr,
 
 QString SampleBuffer::openAudioFile() const
 {
+	A_CLASS_CALL();
+
 	FileDialog ofd( NULL, tr( "Open audio file" ) );
 
 	QString dir;
@@ -1022,6 +1041,8 @@ QString SampleBuffer::openAudioFile() const
 
 QString SampleBuffer::openAndSetAudioFile()
 {
+	A_CLASS_CALL();
+
 	QString fileName = this->openAudioFile();
 
 	if(!fileName.isEmpty())
@@ -1035,6 +1056,8 @@ QString SampleBuffer::openAndSetAudioFile()
 
 QString SampleBuffer::openAndSetWaveformFile()
 {
+	A_CLASS_CALL();
+
 	if( m_audioFile.isEmpty() )
 	{
 		m_audioFile = ConfigManager::inst()->factorySamplesDir() + "waveforms/10saw.flac";
@@ -1096,6 +1119,8 @@ void flacStreamEncoderMetadataCallback( const FLAC__StreamEncoder *,
 
 QString & SampleBuffer::toBase64( QString & _dst ) const
 {
+	A_CLASS_CALL();
+
 #ifdef LMMS_HAVE_FLAC_STREAM_ENCODER_H
 	const f_cnt_t FRAMES_PER_BUF = 1152;
 
@@ -1162,6 +1187,8 @@ QString & SampleBuffer::toBase64( QString & _dst ) const
 SampleBuffer * SampleBuffer::resample( const sample_rate_t _src_sr,
 						const sample_rate_t _dst_sr )
 {
+	A_CLASS_CALL2(_src_sr, _dst_sr);
+
 	sampleFrame * data = m_data;
 	const f_cnt_t frames = m_frames;
 	const f_cnt_t dst_frames = static_cast<f_cnt_t>( frames /
@@ -1303,6 +1330,8 @@ void flacStreamDecoderErrorCallback( const FLAC__StreamDecoder *,
 
 void SampleBuffer::loadFromBase64( const QString & _data )
 {
+	A_CLASS_CALL();
+
 	char * dst = NULL;
 	int dsize = 0;
 	base64::decode( _data, &dst, &dsize );

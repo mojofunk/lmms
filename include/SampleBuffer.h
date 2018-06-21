@@ -31,6 +31,7 @@
 
 #include <samplerate.h>
 
+#include "dev_tools.h"
 #include "export.h"
 #include "interpolation.h"
 #include "lmms_basics.h"
@@ -308,6 +309,9 @@ private:
 
 signals:
 	void sampleUpdated();
+
+private:
+	A_DECLARE_CLASS_MEMBERS(SampleBuffer);
 
 } ;
 
