@@ -31,6 +31,7 @@
 #include "MixHelpers.h"
 #include "BufferManager.h"
 
+A_DEFINE_CLASS_MEMBERS(AudioPort);
 
 AudioPort::AudioPort( const QString & _name, bool _has_effect_chain,
 		FloatModel * volumeModel, FloatModel * panningModel,
@@ -64,6 +65,8 @@ AudioPort::~AudioPort()
 
 void AudioPort::setExtOutputEnabled( bool _enabled )
 {
+	A_CLASS_CALL1(_enabled);
+
 	if( _enabled != m_extOutputEnabled )
 	{
 		m_extOutputEnabled = _enabled;
@@ -83,6 +86,8 @@ void AudioPort::setExtOutputEnabled( bool _enabled )
 
 void AudioPort::setName( const QString & _name )
 {
+	A_CLASS_CALL1(_name.constData());
+
 	m_name = _name;
 	Engine::mixer()->audioDev()->renamePort( this );
 }
@@ -92,6 +97,8 @@ void AudioPort::setName( const QString & _name )
 
 bool AudioPort::processEffects()
 {
+	A_CLASS_CALL();
+
 	if( m_effects )
 	{
 		bool more = m_effects->processAudioBuffer( m_portBuffer, Engine::mixer()->framesPerPeriod(), m_bufferUsage );
@@ -103,6 +110,8 @@ bool AudioPort::processEffects()
 
 void AudioPort::doProcessing()
 {
+	A_CLASS_CALL();
+
 	if( m_mutedModel && m_mutedModel->value() )
 	{
 		return;

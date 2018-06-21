@@ -30,6 +30,7 @@
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 
+#include "dev_tools.h"
 #include "MemoryManager.h"
 #include "PlayHandle.h"
 
@@ -131,6 +132,9 @@ private:
 
 	friend class Mixer;
 	friend class MixerWorkerThread;
+
+private:
+	A_DECLARE_CLASS_MEMBERS(AudioPort);
 
 } ;
 
