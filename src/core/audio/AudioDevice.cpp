@@ -30,6 +30,8 @@
 #include "Mixer.h"
 
 
+A_DEFINE_CLASS_MEMBERS(AudioDevice);
+
 
 AudioDevice::AudioDevice( const ch_cnt_t _channels, Mixer*  _mixer ) :
 	m_supportsCapture( false ),
@@ -64,6 +66,8 @@ AudioDevice::~AudioDevice()
 
 void AudioDevice::processNextBuffer()
 {
+	A_CLASS_CALL();
+
 	const fpp_t frames = getNextBuffer( m_buffer );
 	if( frames )
 	{
@@ -80,6 +84,8 @@ void AudioDevice::processNextBuffer()
 
 fpp_t AudioDevice::getNextBuffer( surroundSampleFrame * _ab )
 {
+	A_CLASS_CALL();
+
 	fpp_t frames = mixer()->framesPerPeriod();
 	const surroundSampleFrame * b = mixer()->nextBuffer();
 	if( !b )
@@ -119,6 +125,8 @@ fpp_t AudioDevice::getNextBuffer( surroundSampleFrame * _ab )
 
 void AudioDevice::stopProcessing()
 {
+	A_CLASS_CALL();
+
 	if( mixer()->hasFifoWriter() )
 	{
 		while( m_inProcess )
@@ -133,6 +141,8 @@ void AudioDevice::stopProcessing()
 
 void AudioDevice::stopProcessingThread( QThread * thread )
 {
+	A_CLASS_STATIC_CALL();
+
 	if( !thread->wait( 30000 ) )
 	{
 		fprintf( stderr, "Terminating audio device thread\n" );
@@ -149,6 +159,8 @@ void AudioDevice::stopProcessingThread( QThread * thread )
 
 void AudioDevice::applyQualitySettings()
 {
+	A_CLASS_CALL();
+
 	src_delete( m_srcState );
 
 	int error;
@@ -190,6 +202,8 @@ void AudioDevice::resample( const surroundSampleFrame * _src,
 						const sample_rate_t _src_sr,
 						const sample_rate_t _dst_sr )
 {
+	A_CLASS_CALL3(_frames, _src_sr, _dst_sr);
+
 	if( m_srcState == NULL )
 	{
 		return;
@@ -216,6 +230,8 @@ int AudioDevice::convertToS16( const surroundSampleFrame * _ab,
 								int_sample_t * _output_buffer,
 								const bool _convert_endian )
 {
+	A_CLASS_CALL3(_frames, _master_gain, _convert_endian);
+
 	if( _convert_endian )
 	{
 		int_sample_t temp;
@@ -254,6 +270,7 @@ int AudioDevice::convertToS16( const surroundSampleFrame * _ab,
 
 void AudioDevice::clearS16Buffer( int_sample_t * _outbuf, const fpp_t _frames )
 {
+	A_CLASS_CALL1(_frames);
 
 	assert( _outbuf != NULL );
 

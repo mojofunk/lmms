@@ -28,6 +28,8 @@
 #include <QtCore/QMutex>
 #include <samplerate.h>
 
+#include "dev_tools.h"
+
 #include "lmms_basics.h"
 
 
@@ -152,6 +154,9 @@ private:
 	SRC_STATE * m_srcState;
 
 	surroundSampleFrame * m_buffer;
+
+private:
+	A_DECLARE_CLASS_MEMBERS(AudioDevice);
 
 } ;
 
