@@ -33,6 +33,9 @@
 #include "ThreadableJob.h"
 #include "Mixer.h"
 
+A_DEFINE_CLASS_MEMBERS(MixerWorkerThread);
+A_DEFINE_CLASS_MEMBERS(MixerWorkerThread::JobQueue);
+
 MixerWorkerThread::JobQueue MixerWorkerThread::globalJobQueue;
 QWaitCondition * MixerWorkerThread::queueReadyWaitCond = NULL;
 QList<MixerWorkerThread *> MixerWorkerThread::workerThreads;
@@ -40,6 +43,8 @@ QList<MixerWorkerThread *> MixerWorkerThread::workerThreads;
 // implementation of internal JobQueue
 void MixerWorkerThread::JobQueue::reset( OperationMode _opMode )
 {
+	A_CLASS_CALL1(_opMode);
+
 	m_writeIndex = 0;
 	m_itemsDone = 0;
 	m_opMode = _opMode;
@@ -50,6 +55,8 @@ void MixerWorkerThread::JobQueue::reset( OperationMode _opMode )
 
 void MixerWorkerThread::JobQueue::addJob( ThreadableJob * _job )
 {
+	A_CLASS_CALL();
+
 	if( _job->requiresProcessing() )
 	{
 		// update job state
@@ -78,6 +85,8 @@ void MixerWorkerThread::JobQueue::run()
 			ThreadableJob * job = m_items[i].exchange(nullptr);
 			if( job )
 			{
+				A_CLASS_DURATION("Process Job");
+
 				job->process();
 				processedJob = true;
 				++m_itemsDone;
@@ -93,6 +102,8 @@ void MixerWorkerThread::JobQueue::run()
 
 void MixerWorkerThread::JobQueue::wait()
 {
+	A_CLASS_CALL();
+
 	while (m_itemsDone < m_writeIndex)
 	{
 #if defined(LMMS_HOST_X86) || defined(LMMS_HOST_X86_64)
@@ -138,6 +149,8 @@ MixerWorkerThread::~MixerWorkerThread()
 
 void MixerWorkerThread::quit()
 {
+	A_CLASS_CALL();
+
 	m_quit = true;
 	resetJobQueue();
 }
@@ -147,12 +160,24 @@ void MixerWorkerThread::quit()
 
 void MixerWorkerThread::startAndWaitForJobs()
 {
-	queueReadyWaitCond->wakeAll();
+	A_CLASS_STATIC_CALL();
+
+	{
+		A_CLASS_STATIC_DURATION("Wake All");
+		queueReadyWaitCond->wakeAll();
+	}
 	// The last worker-thread is never started. Instead it's processed "inline"
 	// i.e. within the global Mixer thread. This way we can reduce latencies
 	// that otherwise would be caused by synchronizing with another thread.
-	globalJobQueue.run();
-	globalJobQueue.wait();
+	{
+		A_CLASS_STATIC_DURATION("Run");
+		globalJobQueue.run();
+	}
+
+	{
+		A_CLASS_STATIC_DURATION("Wait");
+		globalJobQueue.wait();
+	}
 }
 
 
@@ -160,6 +185,8 @@ void MixerWorkerThread::startAndWaitForJobs()
 
 void MixerWorkerThread::run()
 {
+	A_REGISTER_THREAD("Mixer Worker Thread", adt::ThreadPriority::NORMAL);
+
 	MemoryManager::ThreadGuard mmThreadGuard; Q_UNUSED(mmThreadGuard);
 	disable_denormals();
 
@@ -167,8 +194,14 @@ void MixerWorkerThread::run()
 	while( m_quit == false )
 	{
 		m.lock();
-		queueReadyWaitCond->wait( &m );
-		globalJobQueue.run();
+		{
+			A_CLASS_DURATION("Wait for Jobs");
+			queueReadyWaitCond->wait( &m );
+		}
+		{
+			A_CLASS_DURATION("Run Jobs");
+			globalJobQueue.run();
+		}
 		m.unlock();
 	}
 }

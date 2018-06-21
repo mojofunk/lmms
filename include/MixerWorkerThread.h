@@ -29,6 +29,8 @@
 
 #include <atomic>
 
+#include "dev_tools.h"
+
 class QWaitCondition;
 class Mixer;
 class ThreadableJob;
@@ -69,6 +71,9 @@ public:
 		std::atomic_int m_writeIndex;
 		std::atomic_int m_itemsDone;
 		OperationMode m_opMode;
+
+	private:
+		A_DECLARE_CLASS_MEMBERS(MixerWorkerThread::JobQueue);
 
 	} ;
 
@@ -113,6 +118,9 @@ private:
 	static QList<MixerWorkerThread *> workerThreads;
 
 	volatile bool m_quit;
+
+private:
+	A_DECLARE_CLASS_MEMBERS(MixerWorkerThread);
 
 } ;
 
