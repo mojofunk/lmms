@@ -54,6 +54,7 @@
 #include "TimeLineWidget.h"
 #include "PeakController.h"
 
+A_DEFINE_CLASS_MEMBERS(Song);
 
 tick_t MidiTime::s_ticksPerTact = DefaultTicksPerTact;
 
@@ -132,6 +133,8 @@ void Song::masterVolumeChanged()
 
 void Song::setTempo()
 {
+	A_CLASS_CALL();
+
 	Engine::mixer()->requestChangeInModel();
 	const bpm_t tempo = ( bpm_t ) m_tempoModel.value();
 	PlayHandleList & playHandles = Engine::mixer()->playHandles();
@@ -160,6 +163,8 @@ void Song::setTempo()
 
 void Song::setTimeSignature()
 {
+	A_CLASS_CALL();
+
 	MidiTime::setTicksPerTact( ticksPerTact() );
 	emit timeSignatureChanged( m_oldTicksPerTact, ticksPerTact() );
 	emit dataChanged();
@@ -174,6 +179,8 @@ void Song::setTimeSignature()
 
 void Song::savePos()
 {
+	A_CLASS_CALL();
+
 	TimeLineWidget * tl = m_playPos[m_playMode].m_timeLine;
 
 	if( tl != NULL )
@@ -187,6 +194,8 @@ void Song::savePos()
 
 void Song::processNextBuffer()
 {
+	A_CLASS_CALL();
+
 	// if not playing, nothing to do
 	if( m_playing == false )
 	{
@@ -391,6 +400,8 @@ void Song::processNextBuffer()
 
 void Song::processAutomations(const TrackList &tracklist, MidiTime timeStart, fpp_t)
 {
+	A_CLASS_CALL();
+
 	AutomatedValueMap values;
 
 	QSet<const AutomatableModel*> recordedModels;
@@ -453,6 +464,8 @@ void Song::processAutomations(const TrackList &tracklist, MidiTime timeStart, fp
 
 void Song::setModified(bool value)
 {
+	A_CLASS_CALL();
+
 	if( !m_loadingProject && m_modified != value)
 	{
 		m_modified = value;
@@ -485,6 +498,8 @@ std::pair<MidiTime, MidiTime> Song::getExportEndpoints() const
 
 void Song::playSong()
 {
+	A_CLASS_CALL();
+
 	m_recording = false;
 
 	if( isStopped() == false )
@@ -526,6 +541,8 @@ void Song::playAndRecord()
 
 void Song::playBB()
 {
+	A_CLASS_CALL();
+
 	if( isStopped() == false )
 	{
 		stop();
@@ -547,6 +564,8 @@ void Song::playBB()
 
 void Song::playPattern( const Pattern* patternToPlay, bool loop )
 {
+	A_CLASS_CALL();
+
 	if( isStopped() == false )
 	{
 		stop();
@@ -639,6 +658,8 @@ void Song::togglePause()
 
 void Song::stop()
 {
+	A_CLASS_CALL();
+
 	// do not stop/reset things again if we're stopped already
 	if( m_playMode == Mode_None )
 	{
@@ -701,6 +722,8 @@ void Song::stop()
 
 void Song::startExport()
 {
+	A_CLASS_CALL();
+
 	stop();
 	if(m_renderBetweenMarkers)
 	{
@@ -723,6 +746,8 @@ void Song::startExport()
 
 void Song::stopExport()
 {
+	A_CLASS_CALL();
+
 	stop();
 	m_exporting = false;
 	m_exportLoop = false;
@@ -810,6 +835,8 @@ AutomatedValueMap Song::automatedValuesAt(MidiTime time, int tcoNum) const
 
 void Song::clearProject()
 {
+	A_CLASS_CALL();
+
 	Engine::projectJournal()->setJournalling( false );
 
 	if( m_playing )
@@ -888,6 +915,7 @@ void Song::clearProject()
 // create new file
 void Song::createNewProject()
 {
+	A_CLASS_CALL();
 
 	QString defaultTemplate = ConfigManager::inst()->userTemplateDir()
 						+ "default.mpt";
@@ -967,6 +995,8 @@ void Song::createNewProjectFromTemplate( const QString & templ )
 // load given song
 void Song::loadProject( const QString & fileName )
 {
+	A_CLASS_CALL();
+
 	QDomNode node;
 
 	m_loadingProject = true;
@@ -1147,6 +1177,8 @@ void Song::loadProject( const QString & fileName )
 // only save current song as _filename and do nothing else
 bool Song::saveProjectFile( const QString & filename )
 {
+	A_CLASS_CALL();
+
 	DataFile::LocaleHelper localeHelper( DataFile::LocaleHelper::ModeSave );
 
 	DataFile dataFile( DataFile::SongProject );
@@ -1179,6 +1211,8 @@ bool Song::saveProjectFile( const QString & filename )
 // Save the current song
 bool Song::guiSaveProject()
 {
+	A_CLASS_CALL();
+
 	DataFile dataFile( DataFile::SongProject );
 	QString fileNameWithExtension = dataFile.nameWithExtension( m_fileName );
 	setProjectFileName(fileNameWithExtension);
@@ -1199,6 +1233,8 @@ bool Song::guiSaveProject()
 // Save the current song with the given filename
 bool Song::guiSaveProjectAs( const QString & _file_name )
 {
+	A_CLASS_CALL();
+
 	QString o = m_oldFileName;
 	m_oldFileName = m_fileName;
 	setProjectFileName(_file_name);

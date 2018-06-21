@@ -30,6 +30,7 @@
 #include <QtCore/QSharedMemory>
 #include <QtCore/QVector>
 
+#include "dev_tools.h"
 #include "TrackContainer.h"
 #include "Controller.h"
 #include "MeterModel.h"
@@ -435,6 +436,10 @@ signals:
 	void stopped();
 	void modified();
 	void projectFileNameChanged();
+
+private:
+	A_DECLARE_CLASS_MEMBERS(Song);
+
 } ;
 
 
