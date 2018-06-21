@@ -35,6 +35,8 @@
 #include <alsa/asoundlib.h>
 #include <QThread>
 
+#include "dev_tools.h"
+
 #include "AudioDevice.h"
 
 
@@ -99,6 +101,9 @@ private:
 	snd_pcm_sw_params_t * m_swParams;
 
 	bool m_convertEndian;
+
+private:
+	A_DECLARE_CLASS_MEMBERS(AudioAlsa);
 
 } ;
 

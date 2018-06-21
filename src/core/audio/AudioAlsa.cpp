@@ -35,6 +35,7 @@
 #include "Mixer.h"
 #include "gui_templates.h"
 
+A_DEFINE_CLASS_MEMBERS(AudioAlsa);
 
 AudioAlsa::AudioAlsa( bool & _success_ful, Mixer*  _mixer ) :
 	AudioDevice( tLimit<ch_cnt_t>(
@@ -198,6 +199,8 @@ AudioAlsa::DeviceInfoCollection AudioAlsa::getAvailableDevices()
 
 int AudioAlsa::handleError( int _err )
 {
+	A_CLASS_CALL1(_err);
+
 	if( _err == -EPIPE )
 	{
 		// under-run
@@ -234,6 +237,8 @@ int AudioAlsa::handleError( int _err )
 
 void AudioAlsa::startProcessing()
 {
+	A_CLASS_CALL1(isRunning());
+
 	if( !isRunning() )
 	{
 		start( QThread::HighPriority );
@@ -245,6 +250,8 @@ void AudioAlsa::startProcessing()
 
 void AudioAlsa::stopProcessing()
 {
+	A_CLASS_CALL();
+
 	stopProcessingThread( this );
 }
 
@@ -253,6 +260,8 @@ void AudioAlsa::stopProcessing()
 
 void AudioAlsa::applyQualitySettings()
 {
+	A_CLASS_CALL();
+
 	if( hqAudio() )
 	{
 		setSampleRate( Engine::mixer()->processingSampleRate() );
@@ -296,6 +305,8 @@ void AudioAlsa::applyQualitySettings()
 
 void AudioAlsa::run()
 {
+	A_REGISTER_THREAD("ALSA thread", adt::ThreadPriority::NORMAL);
+
 	surroundSampleFrame * temp =
 		new surroundSampleFrame[mixer()->framesPerPeriod()];
 	int_sample_t * outbuf =
@@ -310,10 +321,14 @@ void AudioAlsa::run()
 	bool quit = false;
 	while( quit == false )
 	{
+		A_CLASS_DURATION("Process");
+
 		int_sample_t * ptr = pcmbuf;
 		int len = pcmbuf_size;
 		while( len )
 		{
+			A_CLASS_DURATION("Sample Rate Convert");
+
 			if( outbuf_pos == 0 )
 			{
 				// frames depend on the sample rate
@@ -326,6 +341,8 @@ void AudioAlsa::run()
 					break;
 				}
 				outbuf_size = frames * channels();
+
+				A_CLASS_DATA2(frames, channels());
 
 				convertToS16( temp, frames,
 						mixer()->masterGain(),
@@ -346,7 +363,11 @@ void AudioAlsa::run()
 
 		while( frames )
 		{
+			A_CLASS_DURATION("Blocking Audio Write");
+
 			int err = snd_pcm_writei( m_handle, ptr, frames );
+
+			A_CLASS_DATA2(err, frames);
 
 			if( err == -EAGAIN )
 			{
