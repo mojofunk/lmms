@@ -34,6 +34,11 @@
 #include "InstrumentTrack.h"
 #include "BBTrackContainer.h"
 
+A_DEFINE_CLASS_MEMBERS(FxChannel);
+A_DEFINE_CLASS_MEMBERS(FxRoute);
+A_DEFINE_CLASS_MEMBERS(FxMixer);
+
+
 FxRoute::FxRoute( FxChannel * from, FxChannel * to, float amount ) :
 	m_from( from ),
 	m_to( to ),
@@ -87,6 +92,8 @@ FxChannel::~FxChannel()
 
 inline void FxChannel::processed()
 {
+	A_CLASS_CALL();
+
 	for( const FxRoute * receiverRoute : m_sends )
 	{
 		if( receiverRoute->receiver()->m_muted == false )
@@ -116,6 +123,8 @@ void FxChannel::unmuteForSolo()
 
 void FxChannel::doProcessing()
 {
+	A_CLASS_CALL();
+
 	const fpp_t fpp = Engine::mixer()->framesPerPeriod();
 
 	if( m_muted == false )
@@ -217,6 +226,8 @@ FxMixer::~FxMixer()
 
 int FxMixer::createChannel()
 {
+	A_CLASS_CALL1(m_fxChannels.size());
+
 	const int index = m_fxChannels.size();
 	// create new channel
 	m_fxChannels.push_back( new FxChannel( index, this ) );
@@ -229,6 +240,8 @@ int FxMixer::createChannel()
 
 void FxMixer::activateSolo()
 {
+	A_CLASS_CALL();
+
 	for (int i = 1; i < m_fxChannels.size(); ++i)
 	{
 		m_fxChannels[i]->m_muteBeforeSolo = m_fxChannels[i]->m_muteModel.value();
@@ -238,6 +251,8 @@ void FxMixer::activateSolo()
 
 void FxMixer::deactivateSolo()
 {
+	A_CLASS_CALL();
+
 	for (int i = 1; i < m_fxChannels.size(); ++i)
 	{
 		m_fxChannels[i]->m_muteModel.setValue( m_fxChannels[i]->m_muteBeforeSolo );
@@ -246,6 +261,8 @@ void FxMixer::deactivateSolo()
 
 void FxMixer::toggledSolo()
 {
+	A_CLASS_CALL();
+
 	int soloedChan = -1;
 	bool resetSolo = m_lastSoloed != -1;
 	//untoggle if lastsoloed is entered
@@ -281,6 +298,8 @@ void FxMixer::toggledSolo()
 
 void FxMixer::deleteChannel( int index )
 {
+	A_CLASS_CALL1(index);
+
 	// channel deletion is performed between mixer rounds
 	Engine::mixer()->requestChangeInModel();
 
@@ -350,6 +369,8 @@ void FxMixer::deleteChannel( int index )
 
 void FxMixer::moveChannelLeft( int index )
 {
+	A_CLASS_CALL1(index);
+
 	// can't move master or first channel
 	if( index <= 1 || index >= m_fxChannels.size() )
 	{
@@ -396,6 +417,8 @@ void FxMixer::moveChannelLeft( int index )
 
 void FxMixer::moveChannelRight( int index )
 {
+	A_CLASS_CALL1(index);
+
 	moveChannelLeft( index + 1 );
 }
 
@@ -404,6 +427,8 @@ void FxMixer::moveChannelRight( int index )
 FxRoute * FxMixer::createChannelSend( fx_ch_t fromChannel, fx_ch_t toChannel,
 								float amount )
 {
+	A_CLASS_CALL3(fromChannel, toChannel, amount);
+
 //	qDebug( "requested: %d to %d", fromChannel, toChannel );
 	// find the existing connection
 	FxChannel * from = m_fxChannels[fromChannel];
@@ -426,6 +451,8 @@ FxRoute * FxMixer::createChannelSend( fx_ch_t fromChannel, fx_ch_t toChannel,
 
 FxRoute * FxMixer::createRoute( FxChannel * from, FxChannel * to, float amount )
 {
+	A_CLASS_CALL();
+
 	if( from == to )
 	{
 		return NULL;
@@ -450,6 +477,8 @@ FxRoute * FxMixer::createRoute( FxChannel * from, FxChannel * to, float amount )
 // delete the connection made by createChannelSend
 void FxMixer::deleteChannelSend( fx_ch_t fromChannel, fx_ch_t toChannel )
 {
+	A_CLASS_CALL();
+
 	// delete the send
 	FxChannel * from = m_fxChannels[fromChannel];
 	FxChannel * to	 = m_fxChannels[toChannel];
@@ -468,6 +497,8 @@ void FxMixer::deleteChannelSend( fx_ch_t fromChannel, fx_ch_t toChannel )
 
 void FxMixer::deleteChannelSend( FxRoute * route )
 {
+	A_CLASS_CALL();
+
 	Engine::mixer()->requestChangeInModel();
 	// remove us from from's sends
 	route->sender()->m_sends.remove( route->sender()->m_sends.indexOf( route ) );
@@ -543,6 +574,8 @@ FloatModel * FxMixer::channelSendModel( fx_ch_t fromChannel, fx_ch_t toChannel )
 
 void FxMixer::mixToChannel( const sampleFrame * _buf, fx_ch_t _ch )
 {
+	A_CLASS_CALL1(_ch);
+
 	if( m_fxChannels[_ch]->m_muteModel.value() == false )
 	{
 		m_fxChannels[_ch]->m_lock.lock();
@@ -565,6 +598,8 @@ void FxMixer::prepareMasterMix()
 
 void FxMixer::masterMix( sampleFrame * _buf )
 {
+	A_CLASS_CALL();
+
 	const int fpp = Engine::mixer()->framesPerPeriod();
 
 	// add the channels that have no dependencies (no incoming senders, ie.
@@ -657,6 +692,8 @@ void FxMixer::clear()
 
 void FxMixer::clearChannel(fx_ch_t index)
 {
+	A_CLASS_CALL1(index);
+
 	FxChannel * ch = m_fxChannels[index];
 	ch->m_fxChain.clear();
 	ch->m_volumeModel.setValue( 1.0f );
@@ -689,6 +726,8 @@ void FxMixer::clearChannel(fx_ch_t index)
 
 void FxMixer::saveSettings( QDomDocument & _doc, QDomElement & _this )
 {
+	A_CLASS_CALL();
+
 	// save channels
 	for( int i = 0; i < m_fxChannels.size(); ++i )
 	{
@@ -731,6 +770,8 @@ void FxMixer::allocateChannelsTo(int num)
 
 void FxMixer::loadSettings( const QDomElement & _this )
 {
+	A_CLASS_CALL();
+
 	clear();
 	QDomNode node = _this.firstChild();
 

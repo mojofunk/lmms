@@ -25,6 +25,7 @@
 #ifndef FX_MIXER_H
 #define FX_MIXER_H
 
+#include "dev_tools.h"
 #include "Model.h"
 #include "EffectChain.h"
 #include "JournallingObject.h"
@@ -77,6 +78,10 @@ class FxChannel : public ThreadableJob
 		
 	private:
 		virtual void doProcessing();
+
+private:
+	A_DECLARE_CLASS_MEMBERS(FxChannel);
+
 };
 
 
@@ -118,6 +123,10 @@ class FxRoute : public QObject
 		FxChannel * m_from;
 		FxChannel * m_to;
 		FloatModel m_amount;
+
+private:
+	A_DECLARE_CLASS_MEMBERS(FxRoute);
+
 };
 
 
@@ -204,6 +213,9 @@ private:
 	void allocateChannelsTo(int num);
 
 	int m_lastSoloed;
+
+private:
+	A_DECLARE_CLASS_MEMBERS(FxMixer);
 
 } ;
 
