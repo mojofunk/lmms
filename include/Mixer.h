@@ -31,7 +31,7 @@
 #include <QtCore/QWaitCondition>
 #include <samplerate.h>
 
-
+#include "dev_tools.h"
 #include "lmms_basics.h"
 #include "LocklessList.h"
 #include "Note.h"
@@ -335,6 +335,9 @@ private:
 
 		void write( surroundSampleFrame * buffer );
 
+	private:
+		A_DECLARE_CLASS_MEMBERS(Mixer::fifoWriter);
+
 	} ;
 
 
@@ -424,6 +427,9 @@ private:
 	friend class LmmsCore;
 	friend class MixerWorkerThread;
 	friend class ProjectRenderer;
+
+private:
+	A_DECLARE_CLASS_MEMBERS(Mixer);
 
 } ;
 

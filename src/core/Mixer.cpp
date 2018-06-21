@@ -67,6 +67,8 @@ typedef LocklessList<PlayHandle *>::Element LocklessListElement;
 static thread_local bool s_renderingThread;
 
 
+A_DEFINE_CLASS_MEMBERS(Mixer);
+A_DEFINE_CLASS_MEMBERS(Mixer::fifoWriter);
 
 
 Mixer::Mixer( bool renderOnly ) :
@@ -93,6 +95,8 @@ Mixer::Mixer( bool renderOnly ) :
 	m_doChangesMutex( QMutex::Recursive ),
 	m_waitingForWrite( false )
 {
+	A_CLASS_CALL();
+
 	for( int i = 0; i < 2; ++i )
 	{
 		m_inputBufferFrames[i] = 0;
@@ -166,6 +170,8 @@ Mixer::Mixer( bool renderOnly ) :
 
 Mixer::~Mixer()
 {
+	A_CLASS_CALL();
+
 	runChangesInModel();
 
 	for( int w = 0; w < m_numWorkers; ++w )
@@ -205,6 +211,8 @@ Mixer::~Mixer()
 
 void Mixer::initDevices()
 {
+	A_CLASS_CALL();
+
 	bool success_ful = false;
 	if( m_renderOnly ) {
 		m_audioDev = new AudioDummy( success_ful, this );
@@ -222,6 +230,8 @@ void Mixer::initDevices()
 
 void Mixer::startProcessing( bool _needs_fifo )
 {
+	A_CLASS_CALL1(_needs_fifo);
+
 	if( _needs_fifo )
 	{
 		m_fifoWriter = new fifoWriter( this, m_fifo );
@@ -242,6 +252,8 @@ void Mixer::startProcessing( bool _needs_fifo )
 
 void Mixer::stopProcessing()
 {
+	A_CLASS_CALL();
+
 	m_isProcessing = false;
 
 	if( m_fifoWriter != NULL )
@@ -263,6 +275,8 @@ void Mixer::stopProcessing()
 
 sample_rate_t Mixer::baseSampleRate() const
 {
+	A_CLASS_CALL();
+
 	sample_rate_t sr =
 		ConfigManager::inst()->value( "mixer", "samplerate" ).toInt();
 	if( sr < 44100 )
@@ -311,6 +325,8 @@ bool Mixer::criticalXRuns() const
 
 void Mixer::pushInputFrames( sampleFrame * _ab, const f_cnt_t _frames )
 {
+	A_CLASS_CALL1(_frames);
+
 	requestChangeInModel();
 
 	f_cnt_t frames = m_inputBufferFrames[ m_inputBufferWrite ];
@@ -341,6 +357,8 @@ void Mixer::pushInputFrames( sampleFrame * _ab, const f_cnt_t _frames )
 
 const surroundSampleFrame * Mixer::renderNextBuffer()
 {
+	A_CLASS_CALL();
+
 	m_profiler.startPeriod();
 
 	s_renderingThread = true;
@@ -503,6 +521,8 @@ void Mixer::clear()
 
 void Mixer::clearNewPlayHandles()
 {
+	A_CLASS_CALL();
+
 	requestChangeInModel();
 	for( LocklessListElement * e = m_newPlayHandles.popList(); e; )
 	{
@@ -519,6 +539,8 @@ void Mixer::clearNewPlayHandles()
 // all remaining notes etc. would be played until their end
 void Mixer::clearInternal()
 {
+	A_CLASS_CALL();
+
 	// TODO: m_midiClient->noteOffAll();
 	for( PlayHandleList::Iterator it = m_playHandles.begin(); it != m_playHandles.end(); ++it )
 	{
@@ -536,6 +558,8 @@ void Mixer::clearInternal()
 
 void Mixer::getPeakValues( sampleFrame * _ab, const f_cnt_t _frames, float & peakLeft, float & peakRight ) const
 {
+	A_CLASS_CALL1(_frames);
+
 	peakLeft = 0.0f;
 	peakRight = 0.0f;
 
@@ -560,6 +584,8 @@ void Mixer::getPeakValues( sampleFrame * _ab, const f_cnt_t _frames, float & pea
 
 void Mixer::changeQuality( const struct qualitySettings & _qs )
 {
+	A_CLASS_CALL();
+
 	// don't delete the audio-device
 	stopProcessing();
 
@@ -577,6 +603,8 @@ void Mixer::changeQuality( const struct qualitySettings & _qs )
 
 void Mixer::setAudioDevice( AudioDevice * _dev )
 {
+	A_CLASS_CALL();
+
 	stopProcessing();
 
 	if( _dev == NULL )
@@ -602,6 +630,8 @@ void Mixer::setAudioDevice( AudioDevice * _dev,
 				const struct qualitySettings & _qs,
 				bool _needs_fifo )
 {
+	A_CLASS_CALL();
+
 	// don't delete the audio-device
 	stopProcessing();
 
@@ -629,6 +659,8 @@ void Mixer::setAudioDevice( AudioDevice * _dev,
 
 void Mixer::storeAudioDevice()
 {
+	A_CLASS_CALL();
+
 	if( !m_oldAudioDev )
 	{
 		m_oldAudioDev = m_audioDev;
@@ -640,6 +672,8 @@ void Mixer::storeAudioDevice()
 
 void Mixer::restoreAudioDevice()
 {
+	A_CLASS_CALL();
+
 	if( m_oldAudioDev != NULL )
 	{
 		stopProcessing();
@@ -658,6 +692,8 @@ void Mixer::restoreAudioDevice()
 
 void Mixer::removeAudioPort( AudioPort * _port )
 {
+	A_CLASS_CALL();
+
 	requestChangeInModel();
 	QVector<AudioPort *>::Iterator it = qFind( m_audioPorts.begin(),
 							m_audioPorts.end(),
@@ -672,6 +708,8 @@ void Mixer::removeAudioPort( AudioPort * _port )
 
 bool Mixer::addPlayHandle( PlayHandle* handle )
 {
+	A_CLASS_CALL();
+
 	if( criticalXRuns() == false )
 	{
 		m_newPlayHandles.push( handle );
@@ -691,6 +729,8 @@ bool Mixer::addPlayHandle( PlayHandle* handle )
 
 void Mixer::removePlayHandle( PlayHandle * _ph )
 {
+	A_CLASS_CALL();
+
 	requestChangeInModel();
 	// check thread affinity as we must not delete play-handles
 	// which were created in a thread different than mixer thread
@@ -751,6 +791,8 @@ void Mixer::removePlayHandle( PlayHandle * _ph )
 
 void Mixer::removePlayHandlesOfTypes( Track * _track, const quint8 types )
 {
+	A_CLASS_CALL();
+
 	requestChangeInModel();
 	PlayHandleList::Iterator it = m_playHandles.begin();
 	while( it != m_playHandles.end() )
@@ -778,6 +820,8 @@ void Mixer::removePlayHandlesOfTypes( Track * _track, const quint8 types )
 
 void Mixer::requestChangeInModel()
 {
+	A_CLASS_CALL();
+
 	if( s_renderingThread )
 		return;
 
@@ -800,6 +844,8 @@ void Mixer::requestChangeInModel()
 
 void Mixer::doneChangeInModel()
 {
+	A_CLASS_CALL();
+
 	if( s_renderingThread )
 		return;
 
@@ -820,6 +866,8 @@ void Mixer::doneChangeInModel()
 
 void Mixer::runChangesInModel()
 {
+	A_CLASS_CALL();
+
 	if( m_changesSignal )
 	{
 		m_waitChangesMutex.lock();
@@ -834,6 +882,8 @@ void Mixer::runChangesInModel()
 
 AudioDevice * Mixer::tryAudioDevices()
 {
+	A_CLASS_CALL();
+
 	bool success_ful = false;
 	AudioDevice * dev = NULL;
 	QString dev_name = ConfigManager::inst()->value( "mixer", "audiodev" );
@@ -978,6 +1028,8 @@ AudioDevice * Mixer::tryAudioDevices()
 
 MidiClient * Mixer::tryMidiClients()
 {
+	A_CLASS_CALL();
+
 	QString client_name = ConfigManager::inst()->value( "mixer",
 								"mididev" );
 
@@ -1106,6 +1158,8 @@ void Mixer::fifoWriter::finish()
 
 void Mixer::fifoWriter::run()
 {
+	A_REGISTER_THREAD("fifoWriter Thread", adt::ThreadPriority::NORMAL);
+
 	disable_denormals();
 
 #if 0
@@ -1136,6 +1190,8 @@ void Mixer::fifoWriter::run()
 
 void Mixer::fifoWriter::write( surroundSampleFrame * buffer )
 {
+	A_CLASS_CALL();
+
 	m_mixer->m_waitChangesMutex.lock();
 	m_mixer->m_waitingForWrite = true;
 	m_mixer->m_waitChangesMutex.unlock();
