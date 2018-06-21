@@ -33,6 +33,7 @@
 #include <QColor>
 #include <QMimeData>
 
+#include "dev_tools.h"
 #include "lmms_basics.h"
 #include "MidiTime.h"
 #include "Rubberband.h"
@@ -187,6 +188,9 @@ private:
 
 	friend class TrackContentObjectView;
 
+private:
+	A_DECLARE_CLASS_MEMBERS(TrackContentObject);
+
 } ;
 
 
@@ -319,6 +323,9 @@ private:
 
 	bool mouseMovedDistance( QMouseEvent * me, int distance );
 
+private:
+	A_DECLARE_CLASS_MEMBERS(TrackContentObjectView);
+
 } ;
 
 
@@ -413,6 +420,10 @@ private:
 	QBrush m_lighterColor;
 	QBrush m_gridColor;
 	QBrush m_embossColor;
+
+private:
+	A_DECLARE_CLASS_MEMBERS(TrackContentWidget);
+
 } ;
 
 
@@ -455,6 +466,9 @@ private:
 
 signals:
 	void trackRemovalScheduled( TrackView * t );
+
+private:
+	A_DECLARE_CLASS_MEMBERS(TrackOperationsWidget);
 
 } ;
 
@@ -626,6 +640,9 @@ signals:
 	void nameChanged();
 	void trackContentObjectAdded( TrackContentObject * );
 
+private:
+	A_DECLARE_CLASS_MEMBERS(Track);
+
 } ;
 
 
@@ -732,6 +749,9 @@ private:
 
 private slots:
 	void createTCOView( TrackContentObject * tco );
+
+private:
+	A_DECLARE_CLASS_MEMBERS(TrackView);
 
 } ;
 

@@ -68,6 +68,12 @@
 #include "StringPairDrag.h"
 #include "TextFloat.h"
 
+A_DEFINE_CLASS_MEMBERS(TrackContentObject);
+A_DEFINE_CLASS_MEMBERS(TrackContentObjectView);
+A_DEFINE_CLASS_MEMBERS(TrackContentWidget);
+A_DEFINE_CLASS_MEMBERS(TrackOperationsWidget);
+A_DEFINE_CLASS_MEMBERS(Track);
+A_DEFINE_CLASS_MEMBERS(TrackView);
 
 /*! The width of the resize grip in pixels
  */
@@ -141,6 +147,8 @@ TrackContentObject::~TrackContentObject()
  */
 void TrackContentObject::movePosition( const MidiTime & pos )
 {
+	A_CLASS_CALL();
+
 	if( m_startPosition != pos )
 	{
 		Engine::mixer()->requestChangeInModel();
@@ -163,6 +171,8 @@ void TrackContentObject::movePosition( const MidiTime & pos )
  */
 void TrackContentObject::changeLength( const MidiTime & length )
 {
+	A_CLASS_CALL();
+
 	m_length = length;
 	Engine::getSong()->updateLength();
 	emit lengthChanged();
@@ -185,6 +195,8 @@ bool TrackContentObject::comparePosition(const TrackContentObject *a, const Trac
  */
 void TrackContentObject::copy()
 {
+	A_CLASS_CALL();
+
 	Clipboard::copy( this );
 }
 
@@ -199,6 +211,8 @@ void TrackContentObject::copy()
  */
 void TrackContentObject::paste()
 {
+	A_CLASS_CALL();
+
 	if( Clipboard::getContent( nodeName() ) != NULL )
 	{
 		const MidiTime pos = startPosition();
@@ -222,6 +236,8 @@ void TrackContentObject::paste()
  */
 void TrackContentObject::toggleMute()
 {
+	A_CLASS_CALL();
+
 	m_mutedModel.setValue( !m_mutedModel.value() );
 	emit dataChanged();
 }
@@ -336,6 +352,8 @@ TrackContentObjectView::~TrackContentObjectView()
  */
 void TrackContentObjectView::update()
 {
+	A_CLASS_CALL();
+
 	if( fixedTCOs() )
 	{
 		updateLength();
@@ -447,6 +465,8 @@ bool TrackContentObjectView::close()
  */
 void TrackContentObjectView::remove()
 {
+	A_CLASS_CALL();
+
 	m_trackView->getTrack()->addJournalCheckPoint();
 
 	// delete ourself
@@ -464,6 +484,8 @@ void TrackContentObjectView::remove()
  */
 void TrackContentObjectView::cut()
 {
+	A_CLASS_CALL();
+
 	m_tco->copy();
 	remove();
 }
@@ -480,6 +502,8 @@ void TrackContentObjectView::cut()
  */
 void TrackContentObjectView::updateLength()
 {
+	A_CLASS_CALL();
+
 	if( fixedTCOs() )
 	{
 		setFixedWidth( parentWidget()->width() );
@@ -506,6 +530,8 @@ void TrackContentObjectView::updateLength()
  */
 void TrackContentObjectView::updatePosition()
 {
+	A_CLASS_CALL();
+
 	m_trackView->getTrackContentWidget()->changePosition();
 	// moving a TCO can result in change of song-length etc.,
 	// therefore we update the track-container
@@ -524,6 +550,8 @@ void TrackContentObjectView::updatePosition()
  */
 void TrackContentObjectView::dragEnterEvent( QDragEnterEvent * dee )
 {
+	A_CLASS_CALL();
+
 	TrackContentWidget * tcw = getTrackView()->getTrackContentWidget();
 	MidiTime tcoPos = MidiTime( m_tco->startPosition().getTact(), 0 );
 	if( tcw->canPasteSelection( tcoPos, dee->mimeData() ) == false )
@@ -551,6 +579,8 @@ void TrackContentObjectView::dragEnterEvent( QDragEnterEvent * dee )
  */
 void TrackContentObjectView::dropEvent( QDropEvent * de )
 {
+	A_CLASS_CALL();
+
 	QString type = StringPairDrag::decodeKey( de );
 	QString value = StringPairDrag::decodeValue( de );
 
@@ -599,6 +629,8 @@ void TrackContentObjectView::dropEvent( QDropEvent * de )
  */
 void TrackContentObjectView::leaveEvent( QEvent * e )
 {
+	A_CLASS_CALL();
+
 	while( QApplication::overrideCursor() != NULL )
 	{
 		QApplication::restoreOverrideCursor();
@@ -621,6 +653,8 @@ void TrackContentObjectView::leaveEvent( QEvent * e )
 DataFile TrackContentObjectView::createTCODataFiles(
     				const QVector<TrackContentObjectView *> & tcoViews) const
 {
+	A_CLASS_CALL();
+
 	Track * t = m_trackView->getTrack();
 	TrackContainer * tc = t->trackContainer();
 	DataFile dataFile( DataFile::DragNDropData );
@@ -660,6 +694,8 @@ DataFile TrackContentObjectView::createTCODataFiles(
 
 void TrackContentObjectView::paintTextLabel(QString const & text, QPainter & painter)
 {
+	A_CLASS_CALL();
+
 	if (text.trimmed() == "")
 	{
 		return;
@@ -708,6 +744,8 @@ void TrackContentObjectView::paintTextLabel(QString const & text, QPainter & pai
  */
 void TrackContentObjectView::mousePressEvent( QMouseEvent * me )
 {
+	A_CLASS_CALL();
+
 	setInitialMousePos( me->pos() );
 	if( !fixedTCOs() && me->button() == Qt::LeftButton )
 	{
@@ -837,6 +875,8 @@ void TrackContentObjectView::mousePressEvent( QMouseEvent * me )
  */
 void TrackContentObjectView::mouseMoveEvent( QMouseEvent * me )
 {
+	A_CLASS_CALL();
+
 	if( m_action == CopySelection || m_action == ToggleSelected )
 	{
 		if( mouseMovedDistance( me, 2 ) == true )
@@ -1032,6 +1072,8 @@ void TrackContentObjectView::mouseMoveEvent( QMouseEvent * me )
  */
 void TrackContentObjectView::mouseReleaseEvent( QMouseEvent * me )
 {
+	A_CLASS_CALL();
+
 	// If the CopySelection was chosen as the action due to mouse movement,
 	// it will have been cleared.  At this point Toggle is the desired action.
 	// An active StringPairDrag will prevent this method from being called,
@@ -1172,6 +1214,8 @@ TrackContentWidget::~TrackContentWidget()
 
 void TrackContentWidget::updateBackground()
 {
+	A_CLASS_CALL();
+
 	const int tactsPerBar = 4;
 	const TrackContainerView * tcv = m_trackView->trackContainerView();
 
@@ -1222,6 +1266,8 @@ void TrackContentWidget::updateBackground()
  */
 void TrackContentWidget::addTCOView( TrackContentObjectView * tcov )
 {
+	A_CLASS_CALL();
+
 	TrackContentObject * tco = tcov->getTrackContentObject();
 
 	m_tcoViews.push_back( tcov );
@@ -1260,6 +1306,8 @@ void TrackContentWidget::removeTCOView( TrackContentObjectView * tcov )
  */
 void TrackContentWidget::update()
 {
+	A_CLASS_CALL();
+
 	for( tcoViewVector::iterator it = m_tcoViews.begin();
 				it != m_tcoViews.end(); ++it )
 	{
@@ -1280,6 +1328,8 @@ void TrackContentWidget::update()
  */
 void TrackContentWidget::changePosition( const MidiTime & newPos )
 {
+	A_CLASS_CALL();
+
 	if( m_trackView->trackContainerView() == gui->getBBEditor()->trackContainerView() )
 	{
 		const int curBB = Engine::getBBTrackContainer()->currentBB();
@@ -1384,6 +1434,8 @@ MidiTime TrackContentWidget::getPosition( int mouseX )
  */
 void TrackContentWidget::dragEnterEvent( QDragEnterEvent * dee )
 {
+	A_CLASS_CALL();
+
 	MidiTime tcoPos = MidiTime( getPosition( dee->pos().x() ).getTact(), 0 );
 	if( canPasteSelection( tcoPos, dee->mimeData() ) == false )
 	{
@@ -1406,6 +1458,8 @@ void TrackContentWidget::dragEnterEvent( QDragEnterEvent * dee )
  */
 bool TrackContentWidget::canPasteSelection( MidiTime tcoPos, const QMimeData * mimeData )
 {
+	A_CLASS_CALL();
+
 	Track * t = getTrack();
 	QString type = StringPairDrag::decodeMimeKey( mimeData );
 	QString value = StringPairDrag::decodeMimeValue( mimeData );
@@ -1476,6 +1530,8 @@ bool TrackContentWidget::canPasteSelection( MidiTime tcoPos, const QMimeData * m
  */
 bool TrackContentWidget::pasteSelection( MidiTime tcoPos, QDropEvent * de )
 {
+	A_CLASS_CALL();
+
 	if( canPasteSelection( tcoPos, de->mimeData() ) == false )
 	{
 		return false;
@@ -1564,6 +1620,8 @@ bool TrackContentWidget::pasteSelection( MidiTime tcoPos, QDropEvent * de )
  */
 void TrackContentWidget::dropEvent( QDropEvent * de )
 {
+	A_CLASS_CALL();
+
 	MidiTime tcoPos = MidiTime( getPosition( de->pos().x() ).getTact(), 0 );
 	if( pasteSelection( tcoPos, de ) == true )
 	{
@@ -1580,6 +1638,8 @@ void TrackContentWidget::dropEvent( QDropEvent * de )
  */
 void TrackContentWidget::mousePressEvent( QMouseEvent * me )
 {
+	A_CLASS_CALL();
+
 	if( m_trackView->trackContainerView()->allowRubberband() == true )
 	{
 		QWidget::mousePressEvent( me );
@@ -1616,6 +1676,8 @@ void TrackContentWidget::mousePressEvent( QMouseEvent * me )
  */
 void TrackContentWidget::paintEvent( QPaintEvent * pe )
 {
+	A_CLASS_CALL();
+
 	// Assume even-pixels-per-tact. Makes sense, should be like this anyways
 	const TrackContainerView * tcv = m_trackView->trackContainerView();
 	int ppt = static_cast<int>( tcv->pixelsPerTact() );
@@ -1637,6 +1699,8 @@ void TrackContentWidget::paintEvent( QPaintEvent * pe )
  */
 void TrackContentWidget::resizeEvent( QResizeEvent * resizeEvent )
 {
+	A_CLASS_CALL();
+
 	// Update backgroud
 	updateBackground();
 	// Force redraw
@@ -1800,6 +1864,8 @@ TrackOperationsWidget::~TrackOperationsWidget()
  */
 void TrackOperationsWidget::mousePressEvent( QMouseEvent * me )
 {
+	A_CLASS_CALL();
+
 	if( me->button() == Qt::LeftButton &&
 		me->modifiers() & Qt::ControlModifier &&
 			m_trackView->getTrack()->type() != Track::BBTrack )
@@ -1835,6 +1901,8 @@ void TrackOperationsWidget::mousePressEvent( QMouseEvent * me )
  */
 void TrackOperationsWidget::paintEvent( QPaintEvent * pe )
 {
+	A_CLASS_CALL();
+
 	QPainter p( this );
 	p.fillRect( rect(), palette().brush(QPalette::Background) );
 
@@ -1862,6 +1930,8 @@ void TrackOperationsWidget::paintEvent( QPaintEvent * pe )
  */
 void TrackOperationsWidget::cloneTrack()
 {
+	A_CLASS_CALL();
+
 	TrackContainerView *tcView = m_trackView->trackContainerView();
 
 	Track *newTrack = m_trackView->getTrack()->clone();
@@ -1880,6 +1950,8 @@ void TrackOperationsWidget::cloneTrack()
 /*! \brief Clear this track - clears all TCOs from the track */
 void TrackOperationsWidget::clearTrack()
 {
+	A_CLASS_CALL();
+
 	Track * t = m_trackView->getTrack();
 	t->addJournalCheckPoint();
 	t->lock();
@@ -1894,6 +1966,8 @@ void TrackOperationsWidget::clearTrack()
  */
 void TrackOperationsWidget::removeTrack()
 {
+	A_CLASS_CALL();
+
 	emit trackRemovalScheduled( m_trackView );
 }
 
@@ -1941,6 +2015,8 @@ void TrackOperationsWidget::updateMenu()
 
 void TrackOperationsWidget::toggleRecording( bool on )
 {
+	A_CLASS_CALL();
+
 	AutomationTrackView * atv = dynamic_cast<AutomationTrackView *>( m_trackView );
 	if( atv )
 	{
@@ -2034,6 +2110,8 @@ Track::~Track()
  */
 Track * Track::create( TrackTypes tt, TrackContainer * tc )
 {
+	A_CLASS_STATIC_CALL();
+
 	Engine::mixer()->requestChangeInModel();
 
 	Track * t = NULL;
@@ -2074,6 +2152,8 @@ Track * Track::create( TrackTypes tt, TrackContainer * tc )
  */
 Track * Track::create( const QDomElement & element, TrackContainer * tc )
 {
+	A_CLASS_STATIC_CALL();
+
 	Engine::mixer()->requestChangeInModel();
 
 	Track * t = create(
@@ -2121,6 +2201,8 @@ Track * Track::clone()
  */
 void Track::saveSettings( QDomDocument & doc, QDomElement & element )
 {
+	A_CLASS_CALL();
+
 	if( !m_simpleSerializingMode )
 	{
 		element.setTagName( "track" );
@@ -2171,6 +2253,8 @@ void Track::saveSettings( QDomDocument & doc, QDomElement & element )
  */
 void Track::loadSettings( const QDomElement & element )
 {
+	A_CLASS_CALL();
+
 	if( element.attribute( "type" ).toInt() != type() )
 	{
 		qWarning( "Current track-type does not match track-type of "
@@ -2243,6 +2327,8 @@ void Track::loadSettings( const QDomElement & element )
  */
 TrackContentObject * Track::addTCO( TrackContentObject * tco )
 {
+	A_CLASS_CALL();
+
 	m_trackContentObjects.push_back( tco );
 
 	emit trackContentObjectAdded( tco );
@@ -2259,6 +2345,8 @@ TrackContentObject * Track::addTCO( TrackContentObject * tco )
  */
 void Track::removeTCO( TrackContentObject * tco )
 {
+	A_CLASS_CALL();
+
 	tcoVector::iterator it = qFind( m_trackContentObjects.begin(),
 					m_trackContentObjects.end(),
 					tco );
@@ -2277,6 +2365,8 @@ void Track::removeTCO( TrackContentObject * tco )
 /*! \brief Remove all TCOs from this track */
 void Track::deleteTCOs()
 {
+	A_CLASS_CALL();
+
 	while( ! m_trackContentObjects.isEmpty() )
 	{
 		delete m_trackContentObjects.first();
@@ -2390,6 +2480,8 @@ void Track::getTCOsInRange( tcoVector & tcoV, const MidiTime & start,
  */
 void Track::swapPositionOfTCOs( int tcoNum1, int tcoNum2 )
 {
+	A_CLASS_CALL();
+
 	qSwap( m_trackContentObjects[tcoNum1],
 					m_trackContentObjects[tcoNum2] );
 
@@ -2405,6 +2497,8 @@ void Track::swapPositionOfTCOs( int tcoNum1, int tcoNum2 )
 
 void Track::createTCOsForBB( int bb )
 {
+	A_CLASS_CALL();
+
 	while( numOfTCOs() < bb + 1 )
 	{
 		MidiTime position = MidiTime( numOfTCOs(), 0 );
@@ -2426,6 +2520,8 @@ void Track::createTCOsForBB( int bb )
  */
 void Track::insertTact( const MidiTime & pos )
 {
+	A_CLASS_CALL();
+
 	// we'll increase the position of every TCO, positioned behind pos, by
 	// one tact
 	for( tcoVector::iterator it = m_trackContentObjects.begin();
@@ -2448,6 +2544,8 @@ void Track::insertTact( const MidiTime & pos )
  */
 void Track::removeTact( const MidiTime & pos )
 {
+	A_CLASS_CALL();
+
 	// we'll decrease the position of every TCO, positioned behind pos, by
 	// one tact
 	for( tcoVector::iterator it = m_trackContentObjects.begin();
@@ -2503,6 +2601,8 @@ tact_t Track::length() const
  */
 void Track::toggleSolo()
 {
+	A_CLASS_CALL();
+
 	const TrackContainer::TrackList & tl = m_trackContainer->tracks();
 
 	bool soloBefore = false;
@@ -2663,6 +2763,8 @@ void TrackView::resizeEvent( QResizeEvent * re )
  */
 void TrackView::update()
 {
+	A_CLASS_CALL();
+
 	m_trackContentWidget.update();
 	if( !m_trackContainerView->fixedTCOs() )
 	{
@@ -2679,6 +2781,8 @@ void TrackView::update()
  */
 bool TrackView::close()
 {
+	A_CLASS_CALL();
+
 	m_trackContainerView->removeTrackView( this );
 	return QWidget::close();
 }
@@ -2691,6 +2795,8 @@ bool TrackView::close()
  */
 void TrackView::modelChanged()
 {
+	A_CLASS_CALL();
+
 	m_track = castModel<Track>();
 	assert( m_track != NULL );
 	connect( m_track, SIGNAL( destroyedTrack() ), this, SLOT( close() ) );
@@ -2709,6 +2815,8 @@ void TrackView::modelChanged()
  */
 void TrackView::dragEnterEvent( QDragEnterEvent * dee )
 {
+	A_CLASS_CALL();
+
 	StringPairDrag::processDragEnterEvent( dee, "track_" +
 					QString::number( m_track->type() ) );
 }
@@ -2726,6 +2834,8 @@ void TrackView::dragEnterEvent( QDragEnterEvent * dee )
  */
 void TrackView::dropEvent( QDropEvent * de )
 {
+	A_CLASS_CALL();
+
 	QString type = StringPairDrag::decodeKey( de );
 	QString value = StringPairDrag::decodeValue( de );
 	if( type == ( "track_" + QString::number( m_track->type() ) ) )
@@ -2758,6 +2868,7 @@ void TrackView::dropEvent( QDropEvent * de )
  */
 void TrackView::mousePressEvent( QMouseEvent * me )
 {
+	A_CLASS_CALL();
 
 	// If previously dragged too small, restore on shift-leftclick
 	if( height() < DEFAULT_TRACK_HEIGHT &&
@@ -2833,6 +2944,8 @@ void TrackView::mousePressEvent( QMouseEvent * me )
  */
 void TrackView::mouseMoveEvent( QMouseEvent * me )
 {
+	A_CLASS_CALL();
+
 	int widgetTotal = ConfigManager::inst()->value( "ui",
 							"compacttrackbuttons" ).toInt()==1 ?
 		DEFAULT_SETTINGS_WIDGET_WIDTH_COMPACT + TRACK_OP_WIDTH_COMPACT :
@@ -2886,6 +2999,8 @@ void TrackView::mouseMoveEvent( QMouseEvent * me )
  */
 void TrackView::mouseReleaseEvent( QMouseEvent * me )
 {
+	A_CLASS_CALL();
+
 	m_action = NoAction;
 	while( QApplication::overrideCursor() != NULL )
 	{
@@ -2905,6 +3020,8 @@ void TrackView::mouseReleaseEvent( QMouseEvent * me )
  */
 void TrackView::paintEvent( QPaintEvent * pe )
 {
+	A_CLASS_CALL();
+
 	QStyleOption opt;
 	opt.initFrom( this );
 	QPainter p( this );
@@ -2921,6 +3038,8 @@ void TrackView::paintEvent( QPaintEvent * pe )
  */
 void TrackView::createTCOView( TrackContentObject * tco )
 {
+	A_CLASS_CALL();
+
 	TrackContentObjectView * tv = tco->createView( this );
 	if( tco->getSelectViewOnCreate() == true )
 	{
