@@ -29,6 +29,7 @@
 
 #include <QDomDocument>
 
+#include "dev_tools.h"
 #include "export.h"
 #include "MemoryManager.h"
 
@@ -144,6 +145,9 @@ private:
 	QDomElement m_content;
 	QDomElement m_head;
 	Type m_type;
+
+private:
+	A_DECLARE_CLASS_MEMBERS(DataFile);
 
 } ;
 

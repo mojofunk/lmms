@@ -45,6 +45,8 @@
 
 #include "lmmsversion.h"
 
+A_DEFINE_CLASS_MEMBERS(DataFile);
+
 static void findIds(const QDomElement& elem, QList<jo_id_t>& idList);
 
 
@@ -170,6 +172,8 @@ DataFile::~DataFile()
 
 bool DataFile::validate( QString extension )
 {
+	A_CLASS_CALL1(extension.constData());
+
 	switch( m_type )
 	{
 	case Type::SongProject:
@@ -217,6 +221,8 @@ bool DataFile::validate( QString extension )
 
 QString DataFile::nameWithExtension( const QString & _fn ) const
 {
+	A_CLASS_CALL1(_fn.constData());
+
 	switch( type() )
 	{
 		case SongProject:
@@ -268,6 +274,8 @@ void DataFile::write( QTextStream & _strm )
 
 bool DataFile::writeFile( const QString& filename )
 {
+	A_CLASS_CALL1(filename.constData());
+
 	const QString fullName = nameWithExtension( filename );
 	const QString fullNameTemp = fullName + ".new";
 	const QString fullNameBak = fullName + ".bak";
@@ -853,6 +861,8 @@ void DataFile::upgrade_1_1_0()
 
 void DataFile::upgrade_1_1_91()
 {
+	A_CLASS_CALL();
+
 	// Upgrade to version 1.1.91 from some version less than 1.1.91
 	QDomNodeList list = elementsByTagName( "audiofileprocessor" );
 	for( int i = 0; !list.item( i ).isNull(); ++i )
@@ -902,6 +912,8 @@ void DataFile::upgrade_1_1_91()
 
 void DataFile::upgrade_1_2_0_rc3()
 {
+	A_CLASS_CALL();
+
 	// Upgrade from earlier bbtrack beat note behaviour of adding
 	// steps if a note is placed after the last step.
 	QDomNodeList bbtracks = elementsByTagName( "bbtrack" );
@@ -1365,6 +1377,8 @@ void DataFile::upgrade_1_3_0()
 
 void DataFile::upgrade()
 {
+	A_CLASS_CALL();
+
 	ProjectVersion version =
 		documentElement().attribute( "creatorversion" ).
 							replace( "svn", "" );
@@ -1476,6 +1490,8 @@ void DataFile::upgrade()
 
 void DataFile::loadData( const QByteArray & _data, const QString & _sourceFile )
 {
+	A_CLASS_CALL();
+
 	QString errorMsg;
 	int line = -1, col = -1;
 	if( !setContent( _data, &errorMsg, &line, &col ) )
